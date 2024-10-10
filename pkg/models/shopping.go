@@ -16,7 +16,7 @@ type Endereco struct {
 }
 
 type Shopping struct {
-	Id                  primitive.ObjectID `json:"id"`
+	Id                  primitive.ObjectID `json:"_id"`
 	Nome                string             `json:"nome"`
 	QtdeSalasCinema     uint               `json:"qtde_salas_cinema"`
 	QtdeLojas           uint               `json:"qtde_lojas"`
@@ -27,7 +27,6 @@ type Shopping struct {
 
 func NewShopping(shoppingReq ShoppingRequest) *Shopping {
 	return &Shopping{
-		Id:                  primitive.NewObjectID(),
 		Nome:                shoppingReq.Nome,
 		Tipo:                shoppingReq.Tipo,
 		QtdeSalasCinema:     shoppingReq.QtdeSalasCinema,

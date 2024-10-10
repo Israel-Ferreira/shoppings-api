@@ -2,12 +2,25 @@ package databases
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/Israel-Ferreira/shopping-api/pkg/interfaces"
 	"github.com/Israel-Ferreira/shopping-api/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+func convertStringInObjectId(id string) (primitive.ObjectID, error) {
+	objId, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+
+	return objId, nil
+}
 
 type MongoRepository struct {
 	DbConn *mongo.Client
@@ -47,9 +60,19 @@ func (mr MongoRepository) GetShoppingById(id string) (models.Shopping, error) {
 
 	ctx := context.Background()
 
-	if err := shoppingCollection.FindOne(ctx, bson.M{"id": id}).Decode(&shopping); err != nil {
+	log.Println(id)
+
+	objId, err := convertStringInObjectId(id)
+
+	if err != nil {
 		return shopping, err
 	}
+
+	if err := shoppingCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&shopping); err != nil {
+		return shopping, err
+	}
+
+	log.Println(shopping)
 
 	return shopping, nil
 }
@@ -59,14 +82,33 @@ func (mr MongoRepository) DeleteShoppingById(id string) error {
 
 	ctx := context.Background()
 
-	if _, err := shoppingCollection.DeleteOne(ctx, bson.M{"id": id}); err != nil {
+	objId, err := convertStringInObjectId(id)
+
+	fmt.Println(objId)
+
+	if err != nil {
 		return err
 	}
+
+	dc, err := shoppingCollection.DeleteOne(ctx, bson.M{"_id": objId});
+
+	if  err != nil {
+		return err
+	}
+
+	log.Println(dc.DeletedCount)
 
 	return nil
 }
 
 func (mr MongoRepository) UpdateShopping(id string, dtoReq models.ShoppingRequest) error {
+	objId, err := convertStringInObjectId(id)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println(objId)
 	return nil
 }
 
